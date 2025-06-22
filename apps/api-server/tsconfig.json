@@ -5,6 +5,9 @@
     "declarationMap": true,
     "rootDir": "./src",
     "baseUrl": "./src",
+    "paths" : {
+      "@/*": ["./*"]
+    },
     "resolveJsonModule": true,
     "strict": true,
     "target": "es2022",

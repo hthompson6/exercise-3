@@ -1,7 +1,7 @@
 import { createTRPCRouter, procedure } from "trpc";
 import { z } from "zod";
 
-import { syncSbirMetadataRecords } from "@/lib/sync";
+import { syncSbirMetadataRecords, searchSbirMetadata, SearchSbirMetadataInput } from "@/lib/sbir";
 
 
 /**
@@ -20,5 +20,11 @@ export const SbirRouter = createTRPCRouter({
             console.error("Error syncing metadata:", err);
             throw new Error("Failed to sync metadata");
         }
-    })
+    }),
+
+    searchSbirMetadata: procedure
+        .input(SearchSbirMetadataInput)
+        .query(async ({ input }) => {
+            return await searchSbirMetadata(input.query, input.page, input.limit);
+        })
 });

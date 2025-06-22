@@ -14,7 +14,22 @@
     "noUnusedParameters": false,
     "preserveWatchOutput": true,
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+    "baseUrl": "../..",
+    "paths": {
+      "@repo/database": ["../../packages/database/src"],
+      "@repo/sbir_api": [
+        "packages/sbir_api"
+      ],
+      "@repo/eslint-config": [
+        "packages/eslint-config"
+      ],
+      "@repo/tsconfig": [
+        "packages/tsconfig"
+      ]
+    }
   },
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

@@ -1,59 +1,7 @@
 import { z } from "zod";
 
-import { prisma } from "@/server/db";
-import { fetchFilesPaginated } from "./fetch";
-import { mapSbirToDb } from "./transform";
-
-const ROWS_PER_REQ = 1;
-
-
-/**
- * Fetches and stores SBIR solicitation metadata.
- * @param limit - Optional. Max number of records to fetch. Defaults to unlimited.
- * @returns { created: number; updated: number }
- */
-export async function syncSbirMetadataRecords(limit?: number): Promise<{created: number; updated: number}> {
-    let offset = 0;
-    let hasNextPage = true;
-    let created = 0;
-    let updated = 0;
-    let totalSynced = 0;
-
-    while (hasNextPage && (limit === undefined || totalSynced < limit)) {
-        const { file, hasNextPage: next} = await fetchFilesPaginated(ROWS_PER_REQ, offset);
-        
-        const results = await Promise.allSettled(
-            file.map(async (item) => {
-                const data = mapSbirToDb(item);
-
-                const result = await prisma.solicitation.upsert({
-                    where: {solicitationId: data.solicitationId},
-                    update: data,
-                    create: data
-                });
-
-                return result.createdAt.getTime() === result.updatedAt.getTime()
-                    ? 'created'
-                    : 'updated';
-            })
-        );
-
-        for (const res of results) {
-            if (res.status === 'fulfilled') {
-                if (res.value === 'created') created++;
-                else updated++;
-            } else {
-                console.warn('Upsert error: ', res.reason);
-            }
-        }
-
-        offset += ROWS_PER_REQ;
-        hasNextPage = next;
-    }
-
-    return { created, updated};
-}
-
+import { prisma } from "@repo/database";
+import { Solicitation } from "@repo/database";
 
 /**
  * Searches SBIR metadata records in the database using a text query.
@@ -70,21 +18,22 @@ export async function syncSbirMetadataRecords(limit?: number): Promise<{created:
  *   - `page`: current page number,
  *   - `pageCount`: total number of pages.
  */
-export async function searchSbirMetadata(query: string, page = 1, limit = 20) {
+export async function searchSbirMetadata(query: string, page = 1, limit = 20
+): Promise<SearchSbirMetadataResponse> {
     const skip = (page - 1) * limit;
 
     const [result, total] = await Promise.all([
         prisma.solicitation.findMany({
             where: {
                 OR: [
-                    {title: {contains: query, mode: "insensitive"}},
-                    { agency: {contains: query, mode: "insensitive"}},
-                    {program: {contains: query, mode: "insensitive"}}
+                    { title: { contains: query, mode: "insensitive" } },
+                    { agency: { contains: query, mode: "insensitive" } },
+                    { program: { contains: query, mode: "insensitive" } }
                 ]
             },
             orderBy: [
-                {updatedAt: "desc"},
-                {id: "asc"} // Stabalize the pagination results
+                { updatedAt: "desc" },
+                { id: "asc" } // Stabalize the pagination results
             ],
             skip,
             take: limit
@@ -95,9 +44,9 @@ export async function searchSbirMetadata(query: string, page = 1, limit = 20) {
         prisma.solicitation.count({
             where: {
                 OR: [
-                    {title: {contains: query, mode: "insensitive"}},
-                    { agency: {contains: query, mode: "insensitive"}},
-                    {program: {contains: query, mode: "insensitive"}}
+                    { title: { contains: query, mode: "insensitive" } },
+                    { agency: { contains: query, mode: "insensitive" } },
+                    { program: { contains: query, mode: "insensitive" } }
                 ]
             }
         })
@@ -121,6 +70,9 @@ export const SearchSbirMetadataInput = z.object({
 });
 
 export type SearchSbirMetadataInput = z.infer<typeof SearchSbirMetadataInput>;
-export type SearchSbirMetadataResponse = Awaited<
-  ReturnType<typeof searchSbirMetadata>
->;
+export type SearchSbirMetadataResponse = {
+  result: Solicitation[];
+  total: number;
+  page: number;
+  pageCount: number;
+};

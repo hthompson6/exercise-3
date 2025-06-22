@@ -1,49 +1,13 @@
-import { ExtractTablesWithRelations } from "drizzle-orm";
-import { PgTransaction } from "drizzle-orm/pg-core";
-import { drizzle, PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { PrismaClient } from "@prisma/client";
 
-const {
-  DATABASE_URL,
-  DATABASE_PORT,
-  DATABASE_USERNAME,
-  DATABASE_PASSWORD,
-  DATABASE_NAME,
-} = process.env;
-
-if (
-  !DATABASE_URL ||
-  !DATABASE_PORT ||
-  !DATABASE_USERNAME ||
-  !DATABASE_PASSWORD ||
-  !DATABASE_NAME
-) {
-  throw new Error("Missing environment variable DATABASE_*");
+const globalForPrisma = globalThis as unknown as {
+    prisma: PrismaClient | undefined;
 }
 
-const config = {
-  host: DATABASE_URL,
-  port: parseInt(DATABASE_PORT),
-  username: DATABASE_USERNAME,
-  password: DATABASE_PASSWORD,
-  db: DATABASE_NAME,
-  ssl: process.env.DATABASE_SSL_DISABLED !== "true" && {
-    rejectUnauthorized: false,
-  },
-};
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
 
-const db = drizzle(postgres(config));
+if (process.env.NODE_ENV !== "production") {
+    globalForPrisma.prisma = prisma;
+}
 
-// client
-export default db;
-
-// schema
-export * from "./schema";
-
-// drizzle
-export * from "drizzle-orm";
-export type Transaction = PgTransaction<
-  PostgresJsQueryResultHKT,
-  Record<string, never>,
-  ExtractTablesWithRelations<Record<string, never>>
->;
+export * from "@prisma/client";

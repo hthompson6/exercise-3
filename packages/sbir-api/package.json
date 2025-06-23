@@ -1,11 +1,22 @@
 {
   "name": "@repo/sbir-api",
   "version": "0.1.0",
-  "main": "src/index.ts",
-  "dependencies": {
-    "axios": "^1.10.0"
+  "main": "./dist/index.js",
+  "source": "./src/index.ts",
+  "types": "./dist/index.d.ts",
+  "files": ["dist/**"],
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "build": "tsc"
   },
-  "devDependencies": {
-    "@types/node": "^20.19.1"
+  "dependencies": {
+    "axios": "^1.10.0",
+    "@repo/database": "workspace:*",
+    "@repo/tsconfig": "workspace:*",
+    "@types/node": "^17.0.12",
+    "dotenv": "^16.4.5",
+    "eslint": "^7.32.0",
+    "ts-node": "^10.9.1",
+    "typescript": "5.2.2"
   }
 }

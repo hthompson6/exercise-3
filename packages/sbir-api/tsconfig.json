@@ -1,5 +1,5 @@
 {
-  "extends": "../tsconfig/base.json",
+  "extends": "@repo/tsconfig/base.json",
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
@@ -7,7 +7,9 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "types": ["node"],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
   },
-  "include": ["**/*.ts"]
+  "include": ["src/**/*.ts"]
 }

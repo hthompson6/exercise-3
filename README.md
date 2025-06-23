@@ -1,4 +1,4 @@
-# TODOs
+# TODOs - No JIRA board so...
 
 - [ ] Webpage Obfuscation
 - [ ] Authentication & Security layers
@@ -23,7 +23,9 @@
 - [ ] Keyword searching
 - [ ] Beautify the readme
 - [ ] Show initial page of results on load
-
+- [ ] Logging and monitoring through the standard affair. ELK (really OLK) and Otel + Jaeger/Grafana/Prometheus
+- [ ] Infra and arch diagrams for all of it
+- [ ] Add linters for Python and actually run them for TypeScript apps
 
 # Postgres
 

@@ -1,2 +1,2 @@
-import { syncSbirMetadataRecords } from "../src/lib/sbir";
+// import { syncSbirMetadataRecords } from "../src/lib/sbir";
 

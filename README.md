@@ -1,3 +1,17 @@
+# Postgres
+
+We use docker compose to manage the postgres; however, we cannot enable extensions through that alone.
+
+
+Thus, you will need to run the following commands after docker-compose up
+
+```sh
+./vectordb_extension.sh
+```
+
+
+
+
 # Turborepo starter
 
 This Turborepo starter is maintained by the Turborepo core team.

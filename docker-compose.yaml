@@ -5,6 +5,9 @@ services:
     image: postgres:15
     container_name: turbo-postgres
     restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.pgvector
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres

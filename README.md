@@ -1,3 +1,30 @@
+# TODOs
+
+- [] Webpage Obfuscation
+- [] Authentication & Security layers
+- [] Loadbalancing
+- [] Aysnc pipeline w/ kafka for ETL layer
+- [] Storage solution revisted postgres vs DynamoDB
+- [] Caching...caching everywhere
+- [] Press "Enter" to search intead of needing to click button
+- [] Click table row to go to solicitation URL
+- [] Add filtering for open/closed/time/etc
+- [] Add sorting for columsn based on open
+- [] Move is_open and is_close to one column (Why did I even do it this way...)
+- [] Dockerize each app
+- [] Analysis of horizontal vs vertical scaling
+- [] Cronjob to provide continous ingesting (K8s job, lambda, etc)
+- [] Testing...so much testing needs to be written still.
+    - [] Unit tests across the applications
+    - [] Selenium for automated system testing
+- [] VectorDB integration
+- [] Semantic metadata search
+- [] Semantic file searching
+- [] Keyword searching
+- [] Beautify the readme
+- [] Show initial page of results on load
+
+
 # Postgres
 
 We use docker compose to manage the postgres; however, we cannot enable extensions through that alone.

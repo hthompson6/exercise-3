@@ -1,13 +1,27 @@
-# TODOs - No JIRA board so...
+# Present functionality
+- [x] SBIR Solicitations available to users in web app
+- [x] Continuously ingest SBIR Solicitations
+- [x] Store SBIR Solicitations in Postgres
+- [x] Expose them via basic search functionality
 
+
+# Search Limitations
+- Title
+- Program
+- Agency
+- Topic Descriptions
+
+
+# TODOs - No JIRA board so...
+- [ ] Improve search experience via highlighting, different layout
 - [ ] Webpage Obfuscation
-- [ ] Authentication & Security layers
-- [ ] Loadbalancing
+- [ ] Authentication & Security layers (WAF, VPC private nets, bastions)
+- [ ] Loadbalancing & Route53 DNS registry for frontend
 - [ ] Aysnc pipeline w/ kafka for ETL layer
 - [ ] Storage solution revisted postgres vs DynamoDB
 - [ ] Caching...caching everywhere
-- [ ] Press "Enter" to search intead of needing to click button
-- [ ] Click table row to go to solicitation URL
+- [x] Press "Enter" to search intead of needing to click button
+- [x] Click table row to go to solicitation URL
 - [ ] Add filtering for open/closed/time/etc
 - [ ] Add sorting for columsn based on open
 - [ ] Move is_open and is_close to one column (Why did I even do it this way...)
@@ -20,108 +34,49 @@
 - [ ] VectorDB integration
 - [ ] Semantic metadata search
 - [ ] Semantic file searching
-- [ ] Keyword searching
+- [ ] Full-text Keyword searching
+- [ ] Full-text Document Level Keyword Searching
 - [ ] Beautify the readme
 - [ ] Show initial page of results on load
 - [ ] Logging and monitoring through the standard affair. ELK (really OLK) and Otel + Jaeger/Grafana/Prometheus
 - [ ] Infra and arch diagrams for all of it
 - [ ] Add linters for Python and actually run them for TypeScript apps
+- [ ] Fix query time as it is very very poor. Caching could help, but also need better UX
+- [ ] Manage rate-limit on the front-end since we have a semantic search
+- [ ] Split the embedding API out from the ETL
+- [ ] Switch embedding model from local to OpenAI improve response time
+- [ ] Use LLM or better yet standard NLP to create a brief title during ETL
 
-# Postgres
 
-We use docker compose to manage the postgres; however, we cannot enable extensions through that alone.
+# Developer Environment Deployment
 
-
-Thus, you will need to run the following commands after docker-compose up
-
-```sh
-./vectordb_extension.sh
+### Node App Front-End & API Server
 ```
-
-
-
-
-# Turborepo starter
-
-This Turborepo starter is maintained by the Turborepo core team.
-
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
-```
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm build
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
 pnpm dev
 ```
 
-### Remote Caching
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+### Run the ETL
 
 ```
-cd my-turborepo
-npx turbo login
+poetry run flask --app sbir_loader.etl.app load-sbir
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+### Install airflow
 
+pip install "apache-airflow[postgres]" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.9.1/constraints-3.12.txt"
+
+
+
+### Prisma
+
+```sh
+pnpm --filter @repo/database exec prisma generate
 ```
-npx turbo link
-```
 
-## Useful Links
 
-Learn more about the power of Turborepo:
+# Production Environment Deployment
 
-- [Tasks](https://turbo.build/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/docs/reference/command-line-reference)
+- [ ] IaaS terraform scripts to deploy to AWS
+- [ ] Security and role assn / pass via IAM

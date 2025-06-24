@@ -25,3 +25,4 @@ class Solicitation(Base):
     current_status = Column(String)
 
     solicitation_topics = relationship("Topic", back_populates="solicitation", cascade="all, delete-orphan")
+    documents = relationship("SolicitationDocument", back_populates="solicitation", cascade="all, delete-orphan")

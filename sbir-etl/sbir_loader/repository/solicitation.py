@@ -2,6 +2,7 @@ from datetime import date
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
+from sbir_loader.db.models.document import SolicitationDocument
 from sbir_loader.db.models.solicitation import Solicitation
 from sbir_loader.db.models.topic import Topic
 from sbir_loader.etl.schema import SolicitationSchema
@@ -119,3 +120,16 @@ def upsert_solicitations(session: Session, records: list[SolicitationSchema]):
     except IntegrityError:
         session.rollback()
         raise
+
+
+def insert_documents(session: Session, solicitation_id: int, chunks: list[str], embeddings: list[list[float]]):
+    docs = [
+        SolicitationDocument(
+            solicitation_id=solicitation_id,
+            chunk=chunk,
+            embedding=embedding
+        )
+        for chunk, embedding in zip(chunks, embeddings)
+    ]
+    session.add_all(docs)
+    session.commit()

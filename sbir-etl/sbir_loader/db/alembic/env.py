@@ -7,7 +7,7 @@ from alembic import context
 
 from sbir_loader.config import DATABASE_URL
 from sbir_loader.db.base import Base
-from sbir_loader.db.models import solicitation, topic
+from sbir_loader.db.models import solicitation, topic, document
 target_metadata = Base.metadata
 
 

@@ -96,6 +96,11 @@ pnpm dev
 poetry install
 ```
 
+### Migrate DB Schema
+```
+poetry run alembic -c sbir_loader/db/alembic.ini upgrade head
+```
+
 ### Deployment
 ```
 poetry run flask --app sbir_loader.etl.app load-sbir

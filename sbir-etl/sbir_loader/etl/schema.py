@@ -30,7 +30,7 @@ class TopicSchema(BaseModel):
 class SolicitationSchema(BaseModel):
     solicitation_id: int
     solicitation_title: str
-    solicitation_number: str
+    solicitation_number: Optional[str] = None
     program: str
     phase: str
     agency: str

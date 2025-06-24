@@ -37,9 +37,6 @@ def fetch_solicitations_stream(api_url: str, limit=10, max_records: int | None =
             if max_records and fetched >= max_records:
                 break
 
-            if len(batch) < limit:
-                break
-
 def fetch_and_clean_html(url: str) -> str:
     """Download HTML content and return plain cleaned text."""
     try:

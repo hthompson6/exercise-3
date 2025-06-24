@@ -12,8 +12,33 @@
 - Agency
 - Topic Descriptions
 
-
 # TODOs - No JIRA board so...
+
+## String Match Search
+- [ ] Fix query time as it is very very poor. Caching could help, but also need better UX
+
+## Semantic Search
+
+- [x] Enable pgvector in Postgres automatically
+- [x] Add to alembic ETL migrations
+- [ ] Add schema models
+- [x] Add embedding insertion to the repostory layer
+- [ ] Pull in the HTML files if present in the solicitation_agency_url (In Progress)
+- [ ] Split the embedding API out from the ETL
+- [ ] Switch embedding model from local to OpenAI improve response time
+- [ ] Use LLM or better yet standard NLP to create a brief title during ETL
+- [ ] Manage rate-limit on the front-end since we have a semantic search
+- [ ] Semantic metadata search
+- [ ] Semantic file searching
+
+## Continous Ingestion
+- [x] Move from Flask Command to Endpoint
+- [ ] Integrate with Apache Airflow
+
+deprecated req
+- [ ] Cronjob to provide continous ingesting (K8s job, lambda, etc)
+
+## Others
 - [x] There Docker images are wayyy to big; shrink them
     - Fixed RCA is context param scoped too wide
 - [ ] Improve search experience via highlighting, different layout
@@ -28,15 +53,11 @@
 - [ ] Add filtering for open/closed/time/etc
 - [ ] Add sorting for columsn based on open
 - [ ] Move is_open and is_close to one column (Why did I even do it this way...)
-- [ ] Dockerize each app
+- [ ] Dockerize each app (In Progress)
 - [ ] Analysis of horizontal vs vertical scaling
-- [ ] Cronjob to provide continous ingesting (K8s job, lambda, etc)
 - [ ] Testing...so much testing needs to be written still.
     - [ ] Unit tests across the applications
     - [ ] Selenium for automated system testing
-- [ ] VectorDB integration
-- [ ] Semantic metadata search
-- [ ] Semantic file searching
 - [ ] Full-text Keyword searching
 - [ ] Full-text Document Level Keyword Searching
 - [ ] Beautify the readme
@@ -44,11 +65,7 @@
 - [ ] Logging and monitoring through the standard affair. ELK (really OLK) and Otel + Jaeger/Grafana/Prometheus
 - [ ] Infra and arch diagrams for all of it
 - [ ] Add linters for Python and actually run them for TypeScript apps
-- [ ] Fix query time as it is very very poor. Caching could help, but also need better UX
-- [ ] Manage rate-limit on the front-end since we have a semantic search
-- [ ] Split the embedding API out from the ETL
-- [ ] Switch embedding model from local to OpenAI improve response time
-- [ ] Use LLM or better yet standard NLP to create a brief title during ETL
+
 
 
 # Developer Environment Deployment

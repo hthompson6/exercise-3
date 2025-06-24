@@ -1,84 +1,120 @@
-# Turborepo starter
+# Present functionality
+- [x] SBIR Solicitations available to users in web app
+- [ ] Continuously ingest SBIR Solicitations
+- [x] Ingest SBIR Solicitations
+- [x] Store SBIR Solicitations in Postgres
+- [x] Expose them via basic search functionality
 
-This Turborepo starter is maintained by the Turborepo core team.
 
-## Using this example
+# Search Limitations
+- Title
+- Program
+- Agency
+- Topic Descriptions
 
-Run the following command:
+# TODOs - No JIRA board so...
+
+## String Match Search
+- [ ] Fix query time as it is very very poor. Caching could help, but also need better UX
+
+## Semantic Search
+
+- [x] Enable pgvector in Postgres automatically
+- [x] Add to alembic ETL migrations
+- [ ] Add schema models
+- [x] Add embedding insertion to the repostory layer
+- [ ] Pull in the HTML files if present in the solicitation_agency_url (In Progress)
+- [ ] Split the embedding API out from the ETL
+- [ ] Switch embedding model from local to OpenAI improve response time
+- [ ] Use LLM or better yet standard NLP to create a brief title during ETL
+- [ ] Manage rate-limit on the front-end since we have a semantic search
+- [ ] Semantic metadata search
+- [ ] Semantic file searching
+
+## Continous Ingestion
+- [x] Move from Flask Command to Endpoint
+- [ ] Integrate with Apache Airflow
+
+deprecated req
+- [ ] Cronjob to provide continous ingesting (K8s job, lambda, etc)
+
+## Others
+- [x] There Docker images are wayyy to big; shrink them
+    - Fixed RCA is context param scoped too wide
+- [ ] Improve search experience via highlighting, different layout
+- [ ] Webpage Obfuscation
+- [ ] Authentication & Security layers (WAF, VPC private nets, bastions)
+- [ ] Loadbalancing & Route53 DNS registry for frontend
+- [ ] Aysnc pipeline w/ kafka for ETL layer
+- [ ] Storage solution revisted postgres vs DynamoDB
+- [ ] Caching...caching everywhere
+- [x] Press "Enter" to search intead of needing to click button
+- [x] Click table row to go to solicitation URL
+- [ ] Add filtering for open/closed/time/etc
+- [ ] Add sorting for columsn based on open
+- [ ] Move is_open and is_close to one column (Why did I even do it this way...)
+- [ ] Dockerize each app (In Progress)
+- [ ] Analysis of horizontal vs vertical scaling
+- [ ] Testing...so much testing needs to be written still.
+    - [ ] Unit tests across the applications
+    - [ ] Selenium for automated system testing
+- [ ] Full-text Keyword searching
+- [ ] Full-text Document Level Keyword Searching
+- [ ] Beautify the readme
+- [ ] Show initial page of results on load
+- [ ] Logging and monitoring through the standard affair. ELK (really OLK) and Otel + Jaeger/Grafana/Prometheus
+- [ ] Infra and arch diagrams for all of it
+- [ ] Add linters for Python and actually run them for TypeScript apps
+
+
+
+# Developer Environment Deployment
+
+## Postgres (Run This First)
 
 ```sh
-npx create-turbo@latest
+docker-compose up --build postgres
 ```
 
-## What's inside?
+## Node App Front-End & API Server
 
-This Turborepo includes the following packages/apps:
+### Installation
 
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm build
+```sh
+pnpm install
 ```
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
+### Deployment
+```sh
 pnpm dev
 ```
 
-### Remote Caching
+## ETL
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
+### Installation
 ```
-cd my-turborepo
-npx turbo login
+poetry install
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
+### Deployment
 ```
-npx turbo link
+poetry run flask --app sbir_loader.etl.app load-sbir
 ```
 
-## Useful Links
 
-Learn more about the power of Turborepo:
+# Dev Dependency Notes (Do Not Execute Unless You Know Why)
 
-- [Tasks](https://turbo.build/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/docs/reference/command-line-reference)
+### Install airflow
+
+pip install "apache-airflow[postgres]" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.9.1/constraints-3.12.txt"
+
+### Prisma
+
+```sh
+pnpm --filter @repo/database exec prisma generate
+```
+
+
+# Production Environment Deployment
+- [ ] IaaS terraform scripts to deploy to AWS
+- [ ] Security and role assn / pass via IAM

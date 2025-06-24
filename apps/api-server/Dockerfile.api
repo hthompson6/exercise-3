@@ -1,0 +1,25 @@
+FROM node:20
+
+WORKDIR /app
+
+# Install pnpm globally
+RUN npm install -g pnpm
+
+# Copy root monorepo context (required for workspace linking)
+COPY package.json ./
+COPY pnpm-lock.yaml ./
+COPY pnpm-workspace.yaml ./
+COPY apps/api-server ./apps/api-server
+COPY packages ./packages
+
+
+
+# Install only dependencies for api-server
+RUN pnpm install --filter api-server... --frozen-lockfile
+
+# Build the API server
+RUN pnpm --filter api-server build
+
+# Set working directory and run the app
+WORKDIR /app/apps/api-server
+CMD ["pnpm", "start"]

@@ -36,3 +36,61 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Poetry
+poetry.lock
+
+# dotenv files
+.env
+.env.*
+
+# VS Code
+.vscode/
+
+# Pytest cache
+.pytest_cache/
+
+# Unit test / coverage reports
+htmlcov/
+coverage.xml
+*.cover
+*.py,cover
+.cache
+.tox/
+
+# mypy / pytype
+.mypy_cache/
+.dmypy.json
+.pytype/
+
+# Logs
+*.log
+logs/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Alembic
+alembic/versions/*.pyc
+
+# SQLAlchemy migration artifacts
+*.sqlite3
+*.db
+*.bak
+
+# Mac/Unix
+.DS_Store
+
+# Editors
+.idea/
+*.swp

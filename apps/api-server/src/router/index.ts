@@ -1,9 +1,8 @@
 import { createCallerFactory, createTRPCRouter } from "../trpc";
-
-import { helloWorldRouter } from "./hello-world";
+import { SbirRouter } from "./sbir-records";
 
 export const router = createTRPCRouter({
-  helloWorld: helloWorldRouter,
+  sbirRecord: SbirRouter
 });
 
 export type AppRouter = typeof router;

@@ -1,10 +1,15 @@
 {
+  "extends":  "../../packages/tsconfig/base.json",
   "compilerOptions": {
     "strictNullChecks": true,
     "declaration": true,
     "declarationMap": true,
     "rootDir": "./src",
     "baseUrl": "./src",
+    "paths" : {
+      "@/*": ["./*"],
+      "@repo/database": ["../../packages/database/src/index"]
+    },
     "resolveJsonModule": true,
     "strict": true,
     "target": "es2022",
@@ -18,7 +23,8 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "verbatimModuleSyntax": true
   },
   "include": ["src/**/*.ts", "src/**/*.json"],
   "exclude": ["node_modules", "dist"]

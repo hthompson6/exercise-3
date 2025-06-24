@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Solicitation {
+  id                      Int       @id @default(autoincrement())
+  solicitation_id         Int       @unique
+  solicitation_title      String?   @db.VarChar
+  solicitation_number     String?   @db.VarChar
+  program                 String?   @db.VarChar
+  phase                   String?   @db.VarChar
+  agency                  String?   @db.VarChar
+  branch                  String?   @db.VarChar
+  solicitation_year       Int?
+  release_date            DateTime? @db.Date
+  open_date               DateTime? @db.Date
+  close_date              DateTime? @db.Date
+  application_due_date    String?   @db.VarChar
+  occurrence_number       Int?
+  solicitation_agency_url String?   @db.VarChar
+  current_status          String?   @db.VarChar
+  isOpen                  Boolean?  @map("is_open")
+  isClosed                Boolean?  @map("is_closed")
+  solicitation_topics     Topic[]
+
+  @@map("solicitations")
+}
+
+model Topic {
+  id                Int           @id @default(autoincrement())
+  topic_title       String?       @db.VarChar
+  branch            String?       @db.VarChar
+  topic_number      String?       @db.VarChar
+  topic_open_date   DateTime?     @db.Date
+  topic_closed_date DateTime?     @db.Date
+  topic_description String?       @db.VarChar
+  sbir_topic_link   String?       @db.VarChar
+  solicitation_id   Int?
+  topicIsOpen       Boolean?      @map("topic_is_open")
+  topicIsClosed     Boolean?      @map("topic_is_closed")
+  solicitations     Solicitation? @relation(fields: [solicitation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("solicitation_topics")
+}
+
+model alembic_version {
+  version_num String @id(map: "alembic_version_pkc") @db.VarChar(32)
+}

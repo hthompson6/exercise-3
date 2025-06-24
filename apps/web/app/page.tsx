@@ -1,98 +1,139 @@
-import Image, { type ImageProps } from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
-
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
-
-  return (
-    <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
+import { useEffect, useState } from "react";
+import { useAPI } from "@/trpc/hooks";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>apps/web/app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const api = useAPI();
+  const router = useRouter();
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://turbo.build/docs?utm_source"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [searching, setSearching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSearch = async (pageOverride?: number) => {
+    const currentPage = pageOverride ?? page;
+    setSearching(true);
+    try {
+      const res = await api.sbirRecord.searchSbirMetadata.query({
+        query,
+        page: currentPage,
+        limit: 20,
+      });
+
+      setSearchResults((prev) =>
+        currentPage === 1 ? res.result : [...prev, ...res.result]
+      );
+      setHasMore(currentPage < res.pageCount);
+
+      setTimeout(() => {
+        const needsMore = document.body.scrollHeight <= window.innerHeight;
+        if (needsMore && currentPage < res.pageCount) {
+          const nextPage = currentPage + 1;
+          setPage(nextPage);
+          handleSearch(nextPage);
+        }
+      });
+    } catch (err: any) {
+      setError(err.message ?? "Search Failed");
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  useEffect(() => {
+    handleSearch(1);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const nearBottom =
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - 150;
+
+      if (nearBottom && hasMore && !searching) {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        handleSearch(nextPage);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [page, hasMore, searching]);
+
+  return (
+    <main className="flex flex-col min-h-screen p-6">
+      <h1 className="text-2xl font-bold mb-4">SBIR Solicitation Search</h1>
+
+      {/* Search Input */}
+      <div className="flex gap-2 mb-6">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search by title, agency, program, or topic description..."
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setPage(1);
+              setSearchResults([]);
+              setHasMore(true);
+              handleSearch(1);
+            }
+          }}
+          className="border border-gray-300 p-2 rounded flex-1"
+        />
+        <button
+          onClick={() => {
+            setPage(1);
+            setSearchResults([]);
+            setHasMore(true);
+            handleSearch(1);
+          }}
+          className="bg-gray-700 text-white px-4 py-2 rounded"
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turbo.build?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turbo.build →
-        </a>
-      </footer>
-    </div>
+          Search
+        </button>
+      </div>
+
+      {/* Results */}
+      <div className="grid gap-4">
+        {searchResults.map((rec) => (
+          <div
+            key={rec.id}
+            onClick={() => router.push(`/solicitation/${rec.id}`)}
+            className="border rounded-xl p-4 bg-white cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.015] hover:shadow-lg hover:bg-gray-100 hover:border-gray-500"
+          >
+            <h2 className="text-lg font-semibold mb-1 line-clamp-2" title={rec.solicitation_title}>
+              {rec.solicitation_title}
+            </h2>
+            <div className="text-sm text-gray-500 mb-2">
+              <span className="mr-4">{rec.agency}</span>
+              <span>{rec.program}</span>
+            </div>
+            {rec.solicitation_topics?.[0]?.topic_description && (
+              <p className="text-gray-700 text-sm line-clamp-3" title={rec.solicitation_topics[0].topic_description}>
+                {rec.solicitation_topics[0].topic_description}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Loading & Footer */}
+      {searching && (
+        <p className="mt-6 text-center text-gray-600 text-sm">Loading…</p>
+      )}
+
+      {!hasMore && searchResults.length > 0 && (
+        <p className="mt-6 text-center text-gray-400 text-sm">✅ End of results</p>
+      )}
+
+      {error && (
+        <p className="mt-4 text-red-500 text-sm text-center">{error}</p>
+      )}
+    </main>
   );
 }

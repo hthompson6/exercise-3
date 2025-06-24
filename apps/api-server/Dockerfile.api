@@ -1,0 +1,15 @@
+FROM node:20
+
+WORKDIR /app
+
+# Install pnpm globally
+RUN npm install -g pnpm
+
+# Copy and install monorepo deps
+COPY . .
+RUN pnpm install --frozen-lockfile
+
+# Build the app (optional if TypeScript)
+RUN pnpm --filter api-server build
+
+CMD ["pnpm", "--filter", "api-server", "start"]

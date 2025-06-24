@@ -1,78 +1,34 @@
 "use client";
 
-import Image, { type ImageProps } from "next/image";
-import styles from "./page.module.css";
-
 import { useEffect, useState } from "react";
 import { useAPI } from "@/trpc/hooks";
-import PreviousMap_ from "postcss/lib/previous-map";
-
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
-
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
-
-  return (
-    <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const api = useAPI();
-
-  // State variables for the sync button and op
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-
-  // Handler for synchronizing the db
-  // TODO: Make this continous instead
-  const handleSync = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await api.sbirRecord.syncMetadata.mutate();
-      setResult("✅ Sync complete");
-    } catch (err: any) {
-      setError(err.message ?? "Unknown error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-  // State variables for the search function
+  const router = useRouter();
 
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [searching, setSearching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async (pageOverride?: number) => {
-    if (!query) return;
     const currentPage = pageOverride ?? page;
-
     setSearching(true);
     try {
       const res = await api.sbirRecord.searchSbirMetadata.query({
         query,
         page: currentPage,
-        limit: 20
+        limit: 20,
       });
 
       setSearchResults((prev) =>
         currentPage === 1 ? res.result : [...prev, ...res.result]
       );
       setHasMore(currentPage < res.pageCount);
-
 
       setTimeout(() => {
         const needsMore = document.body.scrollHeight <= window.innerHeight;
@@ -82,20 +38,21 @@ export default function Home() {
           handleSearch(nextPage);
         }
       });
-
     } catch (err: any) {
       setError(err.message ?? "Search Failed");
     } finally {
       setSearching(false);
     }
-  }
+  };
 
-  // Setup infinit scrolling
+  useEffect(() => {
+    handleSearch(1);
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       const nearBottom =
-        window.innerHeight + window.scrollY >=
-        document.body.offsetHeight - 150;
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - 150;
 
       if (nearBottom && hasMore && !searching) {
         const nextPage = page + 1;
@@ -110,28 +67,23 @@ export default function Home() {
 
   return (
     <main className="flex flex-col min-h-screen p-6">
-      <h1 className="text-xl font-bold mb-4">SBIR Metadata Sync + Search</h1>
-
-      {/* Sync Button */}
-      <div className="mb-6">
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-          onClick={handleSync}
-          disabled={loading}
-        >
-          {loading ? "Syncing..." : "Sync Metadata"}
-        </button>
-        {result && <p className="text-green-600 mt-4">{result}</p>}
-        {error && <p className="text-red-600 mt-4">{error}</p>}
-      </div>
+      <h1 className="text-2xl font-bold mb-4">SBIR Solicitation Search</h1>
 
       {/* Search Input */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-6">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="border p-2 flex-1"
-          placeholder="Search by title, agency, or program..."
+          placeholder="Search by title, agency, program, or topic description..."
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setPage(1);
+              setSearchResults([]);
+              setHasMore(true);
+              handleSearch(1);
+            }
+          }}
+          className="border border-gray-300 p-2 rounded flex-1"
         />
         <button
           onClick={() => {
@@ -146,38 +98,41 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Search Results */}
-      {searchResults.length > 0 && (
-        <div className="flex-1 overflow-auto">
-          <table className="min-w-full text-sm border">
-            <thead className="bg-gray-100 sticky top-0">
-              <tr>
-                <th className="text-left p-2">Title</th>
-                <th className="text-left p-2">Agency</th>
-                <th className="text-left p-2">Program</th>
-              </tr>
-            </thead>
-            <tbody>
-              {searchResults.map((rec) => (
-                <tr key={rec.id} className="border-t">
-                  <td className="p-2">{rec.title}</td>
-                  <td className="p-2">{rec.agency}</td>
-                  <td className="p-2">{rec.program}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {/* Results */}
+      <div className="grid gap-4">
+        {searchResults.map((rec) => (
+          <div
+            key={rec.id}
+            onClick={() => router.push(`/solicitation/${rec.id}`)}
+            className="border rounded-xl p-4 bg-white cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.015] hover:shadow-lg hover:bg-gray-100 hover:border-gray-500"
+          >
+            <h2 className="text-lg font-semibold mb-1 line-clamp-2" title={rec.solicitation_title}>
+              {rec.solicitation_title}
+            </h2>
+            <div className="text-sm text-gray-500 mb-2">
+              <span className="mr-4">{rec.agency}</span>
+              <span>{rec.program}</span>
+            </div>
+            {rec.solicitation_topics?.[0]?.topic_description && (
+              <p className="text-gray-700 text-sm line-clamp-3" title={rec.solicitation_topics[0].topic_description}>
+                {rec.solicitation_topics[0].topic_description}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
 
+      {/* Loading & Footer */}
       {searching && (
-        <p className="mt-4 text-sm text-gray-600 text-center">Loading…</p>
+        <p className="mt-6 text-center text-gray-600 text-sm">Loading…</p>
       )}
 
       {!hasMore && searchResults.length > 0 && (
-        <p className="mt-6 text-sm text-gray-400 text-center">
-          ✅ End of results
-        </p>
+        <p className="mt-6 text-center text-gray-400 text-sm">✅ End of results</p>
+      )}
+
+      {error && (
+        <p className="mt-4 text-red-500 text-sm text-center">{error}</p>
       )}
     </main>
   );

@@ -1,7 +1,7 @@
 import { createTRPCRouter, procedure } from "trpc";
 import { z } from "zod";
 
-import { searchSbirMetadata, SearchSbirMetadataInput } from "@/lib/sbir";
+import { searchSbirMetadata, SearchSbirMetadataInput, getSolicitationById, GetSolicitationByIdInput } from "@/lib/sbir";
 
 
 /**
@@ -16,5 +16,11 @@ export const SbirRouter = createTRPCRouter({
         .input(SearchSbirMetadataInput)
         .query(async ({ input }) => {
             return await searchSbirMetadata(input.query, input.page, input.limit);
-        })
+        }),
+
+    getById: procedure
+        .input(GetSolicitationByIdInput)
+        .query(async ({ input }) => {
+            return await getSolicitationById(input.id);
+        }),
 });

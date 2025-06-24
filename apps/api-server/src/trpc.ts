@@ -1,7 +1,7 @@
 import { initTRPC, TRPCError } from "@trpc/server";
-import { CreateExpressContextOptions } from "@trpc/server/adapters/express";
+import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import { getHTTPStatusCodeFromError } from "@trpc/server/http";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import superjson from "superjson";
 import { ZodError } from "zod";
 

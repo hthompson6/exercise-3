@@ -23,7 +23,8 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "verbatimModuleSyntax": true
   },
   "include": ["src/**/*.ts", "src/**/*.json"],
   "exclude": ["node_modules", "dist"]

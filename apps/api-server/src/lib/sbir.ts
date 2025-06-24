@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-import { prisma, Prisma, Solicitation, Topic } from "@repo/database";
+import { prisma, Prisma } from "@repo/database";
+import type { Solicitation, Topic } from "@repo/database";
 
 /**
  * Searches SBIR metadata records in the database using a text query.

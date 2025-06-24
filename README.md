@@ -1,6 +1,7 @@
 # Present functionality
 - [x] SBIR Solicitations available to users in web app
-- [x] Continuously ingest SBIR Solicitations
+- [ ] Continuously ingest SBIR Solicitations
+- [x] Ingest SBIR Solicitations
 - [x] Store SBIR Solicitations in Postgres
 - [x] Expose them via basic search functionality
 
@@ -13,6 +14,8 @@
 
 
 # TODOs - No JIRA board so...
+- [x] There Docker images are wayyy to big; shrink them
+    - Fixed RCA is context param scoped too wide
 - [ ] Improve search experience via highlighting, different layout
 - [ ] Webpage Obfuscation
 - [ ] Authentication & Security layers (WAF, VPC private nets, bastions)
@@ -50,24 +53,43 @@
 
 # Developer Environment Deployment
 
-### Node App Front-End & API Server
+## Postgres (Run This First)
+
+```sh
+docker-compose up --build postgres
 ```
+
+## Node App Front-End & API Server
+
+### Installation
+
+```sh
+pnpm install
+```
+
+### Deployment
+```sh
 pnpm dev
 ```
 
+## ETL
 
-### Run the ETL
+### Installation
+```
+poetry install
+```
 
+### Deployment
 ```
 poetry run flask --app sbir_loader.etl.app load-sbir
 ```
 
 
+# Dev Dependency Notes (Do Not Execute Unless You Know Why)
+
 ### Install airflow
 
 pip install "apache-airflow[postgres]" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.9.1/constraints-3.12.txt"
-
-
 
 ### Prisma
 
@@ -77,6 +99,5 @@ pnpm --filter @repo/database exec prisma generate
 
 
 # Production Environment Deployment
-
 - [ ] IaaS terraform scripts to deploy to AWS
 - [ ] Security and role assn / pass via IAM

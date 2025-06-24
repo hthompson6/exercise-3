@@ -5,11 +5,21 @@ WORKDIR /app
 # Install pnpm globally
 RUN npm install -g pnpm
 
-# Copy and install monorepo deps
-COPY . .
-RUN pnpm install --frozen-lockfile
+# Copy root monorepo context (required for workspace linking)
+COPY package.json ./
+COPY pnpm-lock.yaml ./
+COPY pnpm-workspace.yaml ./
+COPY apps/api-server ./apps/api-server
+COPY packages ./packages
 
-# Build the app (optional if TypeScript)
+
+
+# Install only dependencies for api-server
+RUN pnpm install --filter api-server... --frozen-lockfile
+
+# Build the API server
 RUN pnpm --filter api-server build
 
-CMD ["pnpm", "--filter", "api-server", "start"]
+# Set working directory and run the app
+WORKDIR /app/apps/api-server
+CMD ["pnpm", "start"]

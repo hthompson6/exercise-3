@@ -1,0 +1,10 @@
+# Ignore local dev junk and large build folders
+node_modules
+.pnpm-store
+dist
+.next
+turbo
+*.log
+Dockerfile*
+.env*
+.git
